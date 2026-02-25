@@ -1,0 +1,8 @@
+{
+  "domain": "appliance",
+  "device": "dryer",
+  "status": "done",
+  "intent": "notification",
+  "urgency": 0,
+  "ttl": 30
+}

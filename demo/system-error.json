@@ -1,0 +1,7 @@
+{
+  "domain": "system",
+  "status": "error",
+  "intent": "notification",
+  "urgency": 3,
+  "ttl": 60
+}

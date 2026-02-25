@@ -1,0 +1,8 @@
+{
+  "domain": "security",
+  "device": "garage",
+  "status": "error",
+  "intent": "notification",
+  "urgency": 3,
+  "ttl": 120
+}

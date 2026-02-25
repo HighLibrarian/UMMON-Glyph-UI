@@ -1,0 +1,6 @@
+node_modules/
+
+# User-specific config (auto-generated at runtime)
+config/auth.json
+config/ha-config.json
+config/ha-entities.json

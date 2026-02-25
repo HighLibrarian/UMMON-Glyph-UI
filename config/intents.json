@@ -1,0 +1,34 @@
+{
+  "intents": [
+    {
+      "id": "notification",
+      "label": "Notification",
+      "description": "Standard event notification"
+    },
+    {
+      "id": "idle",
+      "label": "Idle",
+      "description": "System idle / ambient display"
+    },
+    {
+      "id": "voice",
+      "label": "Voice",
+      "description": "Voice assistant interaction"
+    },
+    {
+      "id": "automation",
+      "label": "Automation",
+      "description": "Triggered by an automation rule"
+    },
+    {
+      "id": "alert",
+      "label": "Alert",
+      "description": "High-priority alert needing attention"
+    },
+    {
+      "id": "status",
+      "label": "Status",
+      "description": "Ongoing status display"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# ──────────────────────────────────────────────────────────────
+# Ummon Glyph UI — Docker Compose
+# ──────────────────────────────────────────────────────────────
+
+services:
+  ummon-glyph-ui:
+    build: .
+    image: highlibrarian/ummon-glyph-ui:1.0
+    container_name: ummon-glyph-ui
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config:/app/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=022
+      - PORT=3000
+      # - UMMON_USERNAME=admin
+      # - UMMON_PASSWORD=changeme
+      # - UMMON_API_KEY=your-secret-key
+      # - UMMON_STYLE_SEED=myseed

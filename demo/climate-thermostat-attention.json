@@ -1,0 +1,8 @@
+{
+  "domain": "climate",
+  "device": "thermostat",
+  "status": "attention",
+  "intent": "notification",
+  "urgency": 1,
+  "ttl": 45
+}

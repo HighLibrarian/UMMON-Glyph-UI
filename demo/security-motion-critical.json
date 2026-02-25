@@ -1,0 +1,8 @@
+{
+  "domain": "security",
+  "device": "motion_sensor",
+  "status": "critical",
+  "intent": "notification",
+  "urgency": 4,
+  "ttl": 120
+}

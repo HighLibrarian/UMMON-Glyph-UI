@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ummon · Login</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+    }
+    .login-card .card-title {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .login-brand {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+    .login-brand .brand-glyph {
+      color: var(--accent);
+      font-size: 1.4rem;
+    }
+    .login-error {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--red);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .login-error.visible { display: block; }
+  </style>
+</head>
+<body class="login-page">
+  <section class="card login-card">
+    <div class="login-brand">
+      <span class="brand-glyph">◆</span> Ummon Glyph
+    </div>
+    <h2 class="card-title">Admin Login</h2>
+    <div class="login-error" id="login-error">Invalid username or password</div>
+    <form id="login-form" autocomplete="on">
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus autocomplete="username" />
+      </div>
+      <div class="form-row">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" />
+      </div>
+      <div class="form-actions" style="margin-top: 16px;">
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+      </div>
+    </form>
+  </section>
+
+  <script>
+    (function () {
+      var form  = document.getElementById('login-form');
+      var error = document.getElementById('login-error');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        error.classList.remove('visible');
+
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+
+        fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username, password: password }),
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data.ok) {
+              window.location.href = '/admin';
+            } else {
+              error.textContent = data.error || 'Invalid username or password';
+              error.classList.add('visible');
+            }
+          })
+          .catch(function () {
+            error.textContent = 'Network error — please try again';
+            error.classList.add('visible');
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

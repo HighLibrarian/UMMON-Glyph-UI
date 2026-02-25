@@ -1,0 +1,8 @@
+{
+  "domain": "system",
+  "status": "idle",
+  "intent": "idle",
+  "urgency": 0,
+  "variant": "random",
+  "ttl": 5
+}

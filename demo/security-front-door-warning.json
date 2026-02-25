@@ -1,0 +1,8 @@
+{
+  "domain": "security",
+  "device": "front_door",
+  "status": "warning",
+  "intent": "notification",
+  "urgency": 2,
+  "ttl": 60
+}

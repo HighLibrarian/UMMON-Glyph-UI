@@ -1,0 +1,89 @@
+{
+  "quickActions": [
+    {
+      "label": "Dishwasher Done",
+      "color": "green",
+      "payload": {
+        "domain": "appliance",
+        "device": "dishwasher",
+        "status": "done",
+        "intent": "notification",
+        "urgency": 0
+      }
+    },
+    {
+      "label": "Washer Done",
+      "color": "green",
+      "payload": {
+        "domain": "appliance",
+        "device": "washer",
+        "status": "done",
+        "intent": "notification",
+        "urgency": 0
+      }
+    },
+    {
+      "label": "Door Warning",
+      "color": "yellow",
+      "payload": {
+        "domain": "security",
+        "device": "front_door",
+        "status": "warning",
+        "intent": "notification",
+        "urgency": 2
+      }
+    },
+    {
+      "label": "Climate Attention",
+      "color": "yellow",
+      "payload": {
+        "domain": "climate",
+        "device": "thermostat",
+        "status": "attention",
+        "intent": "notification",
+        "urgency": 1
+      }
+    },
+    {
+      "label": "Listening",
+      "color": "cyan",
+      "payload": {
+        "domain": "voice",
+        "status": "listening",
+        "intent": "voice",
+        "urgency": 0
+      }
+    },
+    {
+      "label": "Responding",
+      "color": "violet",
+      "payload": {
+        "domain": "voice",
+        "status": "responding",
+        "intent": "voice",
+        "urgency": 0
+      }
+    },
+    {
+      "label": "System Error",
+      "color": "red",
+      "payload": {
+        "domain": "system",
+        "status": "error",
+        "intent": "notification",
+        "urgency": 3
+      }
+    },
+    {
+      "label": "Media Playing",
+      "color": "purple",
+      "payload": {
+        "domain": "media",
+        "device": "tv",
+        "status": "running",
+        "intent": "notification",
+        "urgency": 0
+      }
+    }
+  ]
+}

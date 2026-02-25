@@ -1,0 +1,8 @@
+{
+  "domain": "person",
+  "device": "anke",
+  "status": "away",
+  "intent": "dummy",
+  "urgency": 0,
+  "ttl": 30
+}

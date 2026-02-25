@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ummon · Admin</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-page">
+
+  <!-- Top nav -->
+  <header class="topbar">
+    <a href="/" class="topbar-brand">
+      <span class="brand-glyph">◆</span> Ummon Glyph
+    </a>
+    <nav class="topbar-nav">
+      <a href="/"          class="topbar-link">Display</a>
+      <a href="/admin.html" class="topbar-link active">Admin</a>
+      <a href="/ha-admin.html" class="topbar-link">Home Assistant</a>
+      <a href="#" class="topbar-link" id="logout-link" style="display:none;" onclick="fetch('/auth/logout',{method:'POST'}).then(function(){window.location.href='/login'});return false;">Logout</a>
+    </nav>
+    <div class="topbar-status">
+      <span class="conn-dot small" id="conn-dot"></span>
+      <span id="topbar-state">—</span>
+    </div>
+  </header>
+
+  <!-- Dashboard grid -->
+  <main class="admin-grid">
+
+    <!-- ╔═ Preview panel ═══════════════════════════════════╗ -->
+    <section class="card preview-card">
+      <h2 class="card-title">Live Preview</h2>
+      <div class="preview-canvas-wrap">
+        <canvas id="preview-canvas"></canvas>
+      </div>
+      <div class="preview-meta">
+        <span id="preview-domain">—</span>
+        <span id="preview-status">—</span>
+        <span id="preview-seed">—</span>
+      </div>
+      <button class="btn btn-ghost" id="btn-clear">Clear / Reset to Idle</button>
+    </section>
+
+    <!-- ╔═ Send glyph ═════════════════════════════════════╗ -->
+    <section class="card send-card">
+      <h2 class="card-title">Send Glyph</h2>
+      <form id="send-form" autocomplete="off">
+        <div class="form-row">
+          <label>Domain</label>
+          <select name="domain" id="sel-domain" required>
+            <option value="">— loading —</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Device <small>(required for some domains)</small></label>
+          <input type="text" name="device" placeholder="e.g. dishwasher" />
+        </div>
+        <div class="form-row">
+          <label>Status</label>
+          <input type="text" name="status" required placeholder="e.g. done, idle, listening" />
+        </div>
+        <div class="form-row">
+          <label>Intent</label>
+          <select name="intent" id="sel-intent" required>
+            <option value="">— loading —</option>
+          </select>
+        </div>
+        <div class="form-row form-row-inline">
+          <div>
+            <label>Urgency</label>
+            <span class="tooltip-wrap">
+              <label>Urgency</label>
+              <span class="tooltip-icon" data-tooltip="How important is this event? Higher urgency makes the glyph blink or stand out more.">ℹ️</span>
+            </span>
+            <input type="number" name="urgency" value="0" min="0" max="5" />
+          </div>
+          <div>
+            <label>TTL (sec)</label>
+            <input type="number" name="ttl" value="30" min="1" step="1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Variant</label>
+          <select name="variant">
+            <option value="">— none —</option>
+            <option value="random">random</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="btn-preview-local">Preview</button>
+          <button type="submit" class="btn btn-primary">Send to Server</button>
+        </div>
+      </form>
+      <div class="toast" id="send-toast"></div>
+    </section>
+
+    <!-- ╔═ Quick actions ══════════════════════════════════╗ -->
+    <section class="card quick-card">
+      <h2 class="card-title">Quick Actions</h2>
+      <div class="quick-grid" id="quick-grid">
+        <p class="log-empty">Loading…</p>
+      </div>
+    </section>
+
+    <!-- ╔═ MJPEG stream ══════════════════════════════════╗ -->
+    <section class="card mjpeg-card">
+      <h2 class="card-title">MJPEG Stream</h2>
+      <p class="card-hint">Live video stream of the current glyph. Use this URL in Home Assistant (Generic Camera), OBS, or any MJPEG-compatible viewer.</p>
+      <div class="mjpeg-url-col">
+        <code id="mjpeg-url" class="mjpeg-url">—</code>
+        <button class="btn btn-ghost btn-small" id="btn-copy-mjpeg" title="Copy URL">📋 Copy URL</button>
+      </div>
+      <div class="form-row form-row-inline">
+        <div>
+          <label>FPS</label>
+          <select id="mjpeg-fps">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="25">25</option>
+          </select>
+        </div>
+        <div>
+          <label>Quality</label>
+          <select id="mjpeg-quality">
+            <option value="60">60%</option>
+            <option value="80" selected>80%</option>
+            <option value="90">90%</option>
+            <option value="100">100%</option>
+          </select>
+        </div>
+        <div>
+          <label>Resolution</label>
+          <select id="mjpeg-size">
+            <option value="128">128px</option>
+            <option value="256" selected>256px</option>
+            <option value="512">512px</option>
+            <option value="1024">1024px</option>
+          </select>
+        </div>
+      </div>
+      <div class="mjpeg-preview-wrap">
+        <img id="mjpeg-preview" class="mjpeg-preview" alt="MJPEG stream preview" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" id="btn-mjpeg-start">Start Preview</button>
+        <button class="btn btn-ghost" id="btn-mjpeg-stop" style="display:none;">Stop Preview</button>
+      </div>
+      <div class="toast" id="mjpeg-toast"></div>
+    </section>
+
+    <!-- ╔═ Config ═════════════════════════════════════════╗ -->
+    <section class="card config-card">
+      <h2 class="card-title">Configuration</h2>
+      <div class="config-section">
+        <h3>Idle Timer</h3>
+        <div class="form-row form-row-inline">
+          <div>
+            <label>Min interval (sec)</label>
+            <span class="tooltip-wrap">
+              <label>Min interval (sec)</label>
+              <span class="tooltip-icon" data-tooltip="How long Ummon should wait (at least) before showing a new idle mood.">ℹ️</span>
+            </span>
+            <input type="number" id="cfg-idle-min" min="5" step="5" />
+          </div>
+          <div>
+            <label>Max interval (sec)</label>
+            <span class="tooltip-wrap">
+              <label>Max interval (sec)</label>
+              <span class="tooltip-icon" data-tooltip="The longest Ummon will wait before switching to a new idle mood.">ℹ️</span>
+            </span>
+            <input type="number" id="cfg-idle-max" min="5" step="5" />
+          </div>
+          <div>
+            <label>Display duration (sec)</label>
+            <span class="tooltip-wrap">
+              <label>Display duration (sec)</label>
+              <span class="tooltip-icon" data-tooltip="How long each idle mood stays visible before changing.">ℹ️</span>
+            </span>
+            <input type="number" id="cfg-idle-dur" min="1" step="1" />
+          </div>
+          <div>
+            <label>Mood variations</label>
+            <span class="tooltip-wrap">
+              <label>Mood variations</label>
+              <span class="tooltip-icon" data-tooltip="How many different idle moods Ummon can show while idle.">ℹ️</span>
+            </span>
+            <input type="number" id="cfg-idle-moods" min="1" max="32" step="1" />
+          </div>
+        </div>
+        <div class="form-row form-row-inline">
+          <div>
+            <label>Idle variations</label>
+            <span class="tooltip-wrap">
+              <label>Idle variations</label>
+              <span class="tooltip-icon" data-tooltip="Number of visual variations for the static idle base glyph. Each return to idle shows a subtly different pattern. Set to 0 to disable (always the same idle glyph).">ℹ️</span>
+            </span>
+            <input type="number" id="cfg-idle-variations" min="0" max="64" step="1" />
+          </div>
+        </div>
+      </div>
+      <div class="config-section">
+        <h3>Default TTL (sec)</h3>
+        <span class="tooltip-wrap">
+          <h3>Default TTL (sec)</h3>
+          <span class="tooltip-icon" data-tooltip="How long a glyph stays on screen before returning to idle.">ℹ️</span>
+        </span>
+        <input type="number" id="cfg-default-ttl" min="1" step="1" />
+      </div>
+      <div class="config-section">
+        <h3>Priority Map</h3>
+        <span class="tooltip-wrap">
+          <h3>Priority Map</h3>
+          <span class="tooltip-icon" data-tooltip="Controls which events are more important. Higher numbers mean higher priority.">ℹ️</span>
+        </span>
+        <div class="priority-table-wrap">
+          <table class="priority-table" id="priority-table">
+            <thead><tr><th>Pattern</th><th>Priority</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="btn-save-config">Save Configuration</button>
+      </div>
+      <div class="toast" id="config-toast"></div>
+    </section>
+
+    <!-- Home Assistant panel moved to ha-admin.html -->
+
+    <!-- ╔═ Style / Theme ══════════════════════════════════╗ -->
+    <section class="card style-card">
+      <h2 class="card-title">Style Seed</h2>
+      <p class="card-hint">Enter any string to derive a unique visual theme for all glyphs. The seed affects colours, cell shapes, <strong>and layout patterns</strong>.</p>
+      <div class="form-row">
+        <label>Seed string</label>
+        <input type="text" id="style-seed-input" placeholder="e.g. my-home!2024#cozy" autocomplete="off" />
+      </div>
+      <div class="form-row">
+        <label>PNG Resolution</label>
+        <select id="png-resolution-select">
+          <option value="128">128 × 128</option>
+          <option value="256" selected>256 × 256 (default)</option>
+          <option value="512">512 × 512</option>
+          <option value="1024">1024 × 1024</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Grid Size</label>
+        <select id="grid-size-select">
+          <option value="8" selected>8 × 8 (default)</option>
+          <option value="16">16 × 16</option>
+          <option value="32">32 × 32</option>
+        </select>
+      </div>
+      <div class="style-preview-row">
+        <div class="style-preview-wrap">
+          <canvas id="style-preview-canvas"></canvas>
+        </div>
+        <div class="style-params" id="style-params">
+          <p class="log-empty">Enter a seed to see derived parameters</p>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" id="btn-style-preview">Preview</button>
+        <button class="btn btn-primary" id="btn-style-save">Save Style</button>
+      </div>
+      <div class="toast" id="style-toast"></div>
+    </section>
+
+    <!-- ╔═ Event log ══════════════════════════════════════╗ -->
+    <section class="card log-card">
+      <h2 class="card-title">Event Log</h2>
+      <div class="log-list" id="log-list">
+        <p class="log-empty">No events yet</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/js/glyph-engine.js"></script>
+  <script src="/js/glyph-renderer.js"></script>
+  <script src="/js/ha-panel.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

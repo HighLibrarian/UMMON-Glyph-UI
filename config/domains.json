@@ -1,0 +1,40 @@
+{
+  "domains": [
+    {
+      "id": "appliance",
+      "label": "Appliance",
+      "requiresDevice": true,
+      "description": "Kitchen & household appliances"
+    },
+    {
+      "id": "system",
+      "label": "System",
+      "requiresDevice": false,
+      "description": "Home Assistant system events"
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "requiresDevice": true,
+      "description": "Security sensors, locks, cameras"
+    },
+    {
+      "id": "climate",
+      "label": "Climate",
+      "requiresDevice": true,
+      "description": "Thermostats, HVAC, humidity"
+    },
+    {
+      "id": "media",
+      "label": "Media",
+      "requiresDevice": true,
+      "description": "TVs, speakers, media players"
+    },
+    {
+      "id": "voice",
+      "label": "Voice",
+      "requiresDevice": false,
+      "description": "Voice assistant interactions"
+    }
+  ]
+}

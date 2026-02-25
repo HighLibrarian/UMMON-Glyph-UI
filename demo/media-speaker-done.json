@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "device": "speaker",
+  "status": "done",
+  "intent": "notification",
+  "urgency": 0,
+  "ttl": 15
+}

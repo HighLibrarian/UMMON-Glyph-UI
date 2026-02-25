@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "device": "tv",
+  "status": "running",
+  "intent": "notification",
+  "urgency": 0,
+  "ttl": 30
+}
