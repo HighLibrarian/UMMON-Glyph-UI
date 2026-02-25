@@ -32,6 +32,9 @@ if ($All) {
     $body = Get-Content $f.FullName -Raw
     Invoke-RestMethod -Uri "$url/glyph" -Method POST -ContentType "application/json" -Body $body
     Start-Sleep -Seconds $Delay
+  
+    Invoke-RestMethod -Uri "$url/clear" -Method POST
+    start-sleep -seconds 1
   }
   Write-Host "Done — all payloads sent."
   return

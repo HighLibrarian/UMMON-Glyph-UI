@@ -27,11 +27,13 @@ If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in gl
 So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a grid-based pattern generated from metadata (domain, device, status, intent, urgency) - the **same event always produces the same glyph**. Over time you start to *"recognize"* what's happening at a glance, without reading a single word.
 
 
-*The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
-- <img src="screenshots/display-idle.png" width="400"/>
+<img src="screenshots/UMMON-UI-20260225.webm" alt="Glyph display on idle" width="400" />
 
-*Alternativly you can add the camera stream to home assistant*
-- <img src="screenshots/display-home-assistant.png" width="400"/>
+*The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
+
+<img src="screenshots/display-home-assistant.png" alt="Glyph in Home Assistant" width="400" />
+
+*Alternatively you can add the camera stream to Home Assistant.*
 
 
 
@@ -54,21 +56,26 @@ So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a
 ## Screenshots
 
 ### Admin panel
+<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="400" />
+
 *Sending and testing glyphs*
-- <img src="screenshots/admin-send glyphs.png" width="400"/>
+
+<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="400" />
 
 *Configuring timers, variations, and priorities*
-- <img src="screenshots/admin-glyph-ttl.png" width="400"/>
+
+<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="400" />
 
 *Configuring seed, resolution, and grid size*
-- <img src="screenshots/admin-glyph-camera-grid.png" width="400"/>
 
-*Configure the mjpeg stream*
-- <img src="screenshots/admin-glyph-camera-grid-2.png" width="400"/>
+<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="400" />
+
+*Configure the MJPEG stream*
 
 ### Home assistant panel
-*Connect with home assistant and make rules to display glyphs on certain events*
-- <img src="screenshots/home-assistant-connect-rules.png" width="400"/>
+<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="400" />
+
+*Connect with Home Assistant and make rules to display glyphs on certain events.*
 
 
 ---
@@ -198,9 +205,7 @@ This is what a glyph payload looks like:
 
 *A few different glyphs: each domain has a distinct base pattern, each status has its own color.*
 
-<img src="screenshots/glyph-dishwasher.png" width="200"/>
-<img src="screenshots/glyph-listening.png" width="200"/>
-<img src="screenshots/glyph-responding.png" width="200"/>
+<img src="screenshots/glyph-dishwasher.png" alt="Glyph — dishwasher done" width="200" /> <img src="screenshots/glyph-listening.png" alt="Glyph — listening" width="200" /> <img src="screenshots/glyph-responding.png" alt="Glyph — responding" width="200" />
 
 
 ---
@@ -209,8 +214,9 @@ This is what a glyph payload looks like:
 
 You can hook Ummon directly into Home Assistant, label some entities and it'll automatically fire glyphs when things change.
 
-<img src="screenshots/home-assistant-connect-rules.png" width="400"/>
-*The HA integration panel - connect to your instance, pick entities, set up trigger rules.*
+<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration panel" width="400" />
+
+*The HA integration panel — connect to your instance, pick entities, set up trigger rules.*
 
 ### Setup
 
