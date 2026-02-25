@@ -3,7 +3,7 @@
 
 A visual glyph system for Home Assistant that procedurally generates grid-based block patterns that form a consistent symbolic language for your smart home.
 
-> Not art, not emojis ... just machine sigils representing meaning.
+> ... just machine sigils representing meaning.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20-green) ![Docker](https://img.shields.io/badge/Docker-Alpine-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
@@ -27,7 +27,9 @@ If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in gl
 So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a grid-based pattern generated from metadata (domain, device, status, intent, urgency) - the **same event always produces the same glyph**. Over time you start to *"recognize"* what's happening at a glance, without reading a single word.
 
 
-<img src="screenshots/UMMON demo glyphs.mp4" alt="Glyph display on idle" width="400" />
+<video controls width="600">
+  <source src="screenshots/UMMON-demo-glyphs.mp4" type="video/mp4">
+</video>
 
 *The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
 
