@@ -12,13 +12,12 @@ A visual glyph system for Home Assistant that procedurally generates grid-based 
 
 ## Disclaimer
 
-```
 This project was built with the help of an LLM. Yes, a machine helped build the machine sigils. Make of that what you will.
 
 I won't be actively monitoring issues or pull requests. (sorry) It's a thing that exists because I read the Hyperion Cantos a long time ago, and, for reasons unclear, UMMON drifted back into my thoughts while I was tinkering with Home Assistant.
 
 If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in glyphs. KWATZ!
-```
+
 
 
 
