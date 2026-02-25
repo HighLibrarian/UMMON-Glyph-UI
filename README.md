@@ -26,10 +26,7 @@ If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in gl
 
 So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a grid-based pattern generated from metadata (domain, device, status, intent, urgency) - the **same event always produces the same glyph**. Over time you start to *"recognize"* what's happening at a glance, without reading a single word.
 
-
-<video controls width="600">
-  <source src="screenshots/UMMON-demo-glyphs.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/27104629-b566-4a18-a7f4-cb0bff17190b
 
 *The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
 
@@ -58,26 +55,27 @@ So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a
 ## Screenshots
 
 ### Admin panel
-<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="400" />
+<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="600" />
 
 *Sending and testing glyphs*
 
-<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="400" />
+<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="600" />
 
 *Configuring timers, variations, and priorities*
 
-<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="400" />
+<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="600" />
 
 *Configuring seed, resolution, and grid size*
 
-<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="400" />
+<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="600" />
 
 *Configure the MJPEG stream*
 
 ### Home assistant panel
-<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="400" />
-
 *Connect with Home Assistant and make rules to display glyphs on certain events.*
+<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="600" />
+
+
 
 
 ---
