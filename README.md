@@ -25,9 +25,10 @@ If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in gl
 
 So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a grid-based pattern generated from metadata (domain, device, status, intent, urgency) - the **same event always produces the same glyph**. Over time you start to *"recognize"* what's happening at a glance, without reading a single word.
 
+*The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
 https://github.com/user-attachments/assets/27104629-b566-4a18-a7f4-cb0bff17190b
 
-*The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
+
 
 <img src="screenshots/display-home-assistant.png" alt="Glyph in Home Assistant" width="400" />
 
