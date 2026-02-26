@@ -14,7 +14,9 @@ A visual glyph system for Home Assistant that procedurally generates grid-based 
 
 This project was built with the help of an LLM. Yes, a machine helped build the machine sigils. Make of that what you will.
 
-I won’t be actively monitoring issues or pull requests. (Sorry.) It’s a thing that exists because I read Hyperion Cantos years ago, and, for reasons unclear, UMMON resurfaced while I was tinkering in Home Assistant, vaguely hypnotized by a Tix Clock running in the background of a SmarterEveryDay video.
+I won’t be actively monitoring issues or pull requests, but that doesn’t mean the project is “dead.” It’s a hobby project that moves at the same unpredictable pace as its creator. I’ll work on it when inspiration strikes, but I can’t promise timelines, responses, or feature development.
+
+It exists because I read Hyperion Cantos years ago and, for reasons unclear, UMMON resurfaced while I was tinkering in Home Assistant, vaguely hypnotized by a Tix Clock running in the background of a SmarterEveryDay video.
 
 If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in glyphs. KWATZ!
 
