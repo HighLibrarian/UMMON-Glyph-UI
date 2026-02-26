@@ -3,7 +3,7 @@
 
 A visual glyph system for Home Assistant that procedurally generates grid-based block patterns that form a consistent symbolic language for your smart home.
 
-> Not art, not emojis ... just machine sigils representing meaning.
+> ... just machine sigils representing meaning.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20-green) ![Docker](https://img.shields.io/badge/Docker-Alpine-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
@@ -12,13 +12,14 @@ A visual glyph system for Home Assistant that procedurally generates grid-based 
 
 ## Disclaimer
 
-```
 This project was built with the help of an LLM. Yes, a machine helped build the machine sigils. Make of that what you will.
 
-I won't be actively monitoring issues or pull requests. (sorry) It's a thing that exists because I read the Hyperion Cantos a long time ago, and, for reasons unclear, UMMON drifted back into my thoughts while I was tinkering with Home Assistant.
+I won’t be actively monitoring issues or pull requests, but that doesn’t mean the project is “dead.” It’s a hobby project that moves at the same unpredictable pace as its creator. I’ll work on it when inspiration strikes, but I can’t promise timelines, responses, or feature development.
+
+It exists because I read Hyperion Cantos years ago and, for reasons unclear, UMMON resurfaced while I was tinkering in Home Assistant, vaguely hypnotized by a Tix Clock running in the background of a SmarterEveryDay video.
 
 If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in glyphs. KWATZ!
-```
+
 
 
 
@@ -26,10 +27,11 @@ If it breaks, it breaks. If it works, enjoy watching your dishwasher speak in gl
 
 So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a grid-based pattern generated from metadata (domain, device, status, intent, urgency) - the **same event always produces the same glyph**. Over time you start to *"recognize"* what's happening at a glance, without reading a single word.
 
-
-<img src="screenshots/UMMON demo glyphs.mp4" alt="Glyph display on idle" width="400" />
-
 *The main display showing a glyph. This is what you'd put on a wall-mounted tablet or dashboard.*
+
+https://github.com/user-attachments/assets/27104629-b566-4a18-a7f4-cb0bff17190b
+
+
 
 <img src="screenshots/display-home-assistant.png" alt="Glyph in Home Assistant" width="400" />
 
@@ -56,26 +58,27 @@ So, Ummon turns Home Assistant events into unique visual glyphs. Each glyph is a
 ## Screenshots
 
 ### Admin panel
-<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="400" />
+<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="600" />
 
 *Sending and testing glyphs*
 
-<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="400" />
+<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="600" />
 
 *Configuring timers, variations, and priorities*
 
-<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="400" />
+<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="600" />
 
 *Configuring seed, resolution, and grid size*
 
-<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="400" />
+<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="600" />
 
 *Configure the MJPEG stream*
 
 ### Home assistant panel
-<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="400" />
-
 *Connect with Home Assistant and make rules to display glyphs on certain events.*
+<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="600" />
+
+
 
 
 ---
