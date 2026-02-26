@@ -5,7 +5,7 @@ A visual glyph system for Home Assistant that procedurally generates grid-based 
 
 > ... just machine sigils representing meaning.
 
-![Node.js](https://img.shields.io/badge/Node.js-20-green) ![Docker](https://img.shields.io/badge/Docker-Alpine-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
+![Node.js](https://img.shields.io/badge/Node.js-20-green) ![Docker](https://img.shields.io/badge/Docker-Alpine-blue) ![License](https://img.shields.io/badge/License-MIT-yellow) [![Docker Hub](https://img.shields.io/docker/pulls/highlibrarian/ummon-glyph-ui)](https://hub.docker.com/r/highlibrarian/ummon-glyph-ui)
 
 ---
 
@@ -109,8 +109,6 @@ docker compose up -d
 ### Docker CLI
 
 ```bash
-docker build -t ummon-glyph-ui .
-
 docker run -d \
   --name ummon-glyph-ui \
   -p 3000:3000 \
@@ -120,20 +118,18 @@ docker run -d \
   -e UMASK=022 \
   -e UMMON_USERNAME=admin \
   -e UMMON_PASSWORD=secret \
-  ummon-glyph-ui
+  highlibrarian/ummon-glyph-ui:latest
 ```
 
 ### Unraid
 
-Install via Community Applications* or use the included `unraid-template.xml`.
+Install via Community Applications or manually import `unraid-template.xml` from the repository.
 
 | Setting | Default |
 |---------|---------|
 | PUID | 99 (nobody) |
 | PGID | 100 (users) |
 | Config path | `/mnt/user/appdata/ummon-glyph-ui/config` |
-
-*needs work
 
 ---
 

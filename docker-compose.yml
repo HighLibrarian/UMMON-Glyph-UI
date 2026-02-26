@@ -4,8 +4,8 @@
 
 services:
   ummon-glyph-ui:
-    build: .
-    image: highlibrarian/ummon-glyph-ui:1.0
+    # build: .   # uncomment to build locally instead
+    image: highlibrarian/ummon-glyph-ui:latest
     container_name: ummon-glyph-ui
     restart: unless-stopped
     ports:
