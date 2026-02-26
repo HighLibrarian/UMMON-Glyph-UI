@@ -9,18 +9,19 @@ PUID=${PUID:-1000}
 PGID=${PGID:-1000}
 UMASK=${UMASK:-022}
 
-# Create group if it doesn't exist
-if ! getent group ummon >/dev/null 2>&1; then
+# Resolve or create the group for PGID
+# (GID may already be in use by a system group, e.g. GID 100 = 'users' on Alpine)
+EXISTING_GROUP=$(getent group "$PGID" | cut -d: -f1)
+if [ -z "$EXISTING_GROUP" ]; then
   addgroup -g "$PGID" ummon
-else
-  groupmod -g "$PGID" ummon 2>/dev/null || true
+  EXISTING_GROUP=ummon
 fi
 
-# Create user if it doesn't exist
+# Create user 'ummon' if it doesn't exist, assigned to whichever group owns PGID
 if ! getent passwd ummon >/dev/null 2>&1; then
-  adduser -D -u "$PUID" -G ummon -h /app -s /bin/sh ummon
+  adduser -D -u "$PUID" -G "$EXISTING_GROUP" -h /app -s /bin/sh ummon
 else
-  usermod -u "$PUID" ummon 2>/dev/null || true
+  usermod -u "$PUID" -g "$EXISTING_GROUP" ummon 2>/dev/null || true
 fi
 
 # Set umask
