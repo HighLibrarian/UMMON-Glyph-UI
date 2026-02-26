@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/27104629-b566-4a18-a7f4-cb0bff17190b
 
 
 
-<img src="screenshots/display-home-assistant.png" alt="Glyph in Home Assistant" width="400" />
+<img src="screenshots/display-home-assistant.png" alt="Glyph in Home Assistant" width="800" />
 
 *Alternatively you can add the camera stream to Home Assistant.*
 
@@ -58,25 +58,25 @@ https://github.com/user-attachments/assets/27104629-b566-4a18-a7f4-cb0bff17190b
 ## Screenshots
 
 ### Admin panel
-<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="600" />
+<img src="screenshots/admin-send glyphs.png" alt="Admin panel — send glyphs" width="700" />
 
 *Sending and testing glyphs*
 
-<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="600" />
+<img src="screenshots/admin-glyph-ttl.png" alt="Admin panel — idle timers and priorities" width="700" />
 
 *Configuring timers, variations, and priorities*
 
-<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="600" />
+<img src="screenshots/admin-glyph-camera-grid.png" alt="Admin panel — seed, resolution, grid size" width="700" />
 
 *Configuring seed, resolution, and grid size*
 
-<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="600" />
+<img src="screenshots/admin-glyph-camera-grid-2.png" alt="Admin panel — MJPEG stream" width="700" />
 
 *Configure the MJPEG stream*
 
 ### Home assistant panel
 *Connect with Home Assistant and make rules to display glyphs on certain events.*
-<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="600" />
+<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration — connection and trigger rules" width="700" />
 
 
 
@@ -213,7 +213,7 @@ This is what a glyph payload looks like:
 
 You can hook Ummon directly into Home Assistant, label some entities and it'll automatically fire glyphs when things change.
 
-<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration panel" width="400" />
+<img src="screenshots/home-assistant-connect-rules.png" alt="HA integration panel" width="700" />
 
 *The HA integration panel — connect to your instance, pick entities, set up trigger rules.*
 
