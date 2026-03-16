@@ -1,0 +1,25 @@
+{
+  "idle": {
+    "enabled": true,
+    "minIntervalSec": 60,
+    "maxIntervalSec": 300,
+    "displayDurationSec": 5,
+    "moods": 20,
+    "idleVariations": 20
+  },
+  "defaults": {
+    "ttl": 100
+  },
+  "priorities": {
+    "system/idle/idle": 0,
+    "system/*/idle": 1,
+    "appliance/*/notification": 10,
+    "climate/*/notification": 10,
+    "media/*/notification": 10,
+    "security/*/notification": 20,
+    "voice/listening/voice": 30,
+    "voice/responding/voice": 30,
+    "system/error/*": 40,
+    "*": 5
+  }
+}

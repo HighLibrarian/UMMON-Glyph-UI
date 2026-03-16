@@ -34,11 +34,23 @@
   font-size: 0.98em;
   min-width: 180px;
   max-width: 260px;
-  z-index: 100;
+  z-index: 300;
   transition: opacity 0.18s;
   white-space: normal;
   text-align: left;
   line-height: 1.4;
+}
+
+/* Ensure tooltips aren't clipped inside scrollable modals */
+.ha-modal .tooltip-icon {
+  position: relative;
+}
+.ha-modal .tooltip-icon::after {
+  position: absolute;
+  left: 50%;
+  top: auto;
+  bottom: 130%;
+  transform: translateX(-50%);
 }
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Ummon Glyph UI — styles
@@ -990,7 +1002,26 @@ a:hover { text-decoration: underline; }
 .ha-trig-type  { width: 80px; flex-shrink: 0; }
 .ha-trig-op    { width: 55px; flex-shrink: 0; }
 .ha-trig-value { flex: 1; min-width: 60px; }
-.ha-trig-status { width: 100px; flex-shrink: 0; }
+.ha-trig-status { width: 170px; flex-shrink: 0; }
+
+/* Trigger column headers */
+.ha-trigger-labels {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+  align-items: center;
+}
+.ha-trig-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ha-trig-label-type   { width: 80px; flex-shrink: 0; }
+.ha-trig-label-op     { width: 55px; flex-shrink: 0; }
+.ha-trig-label-value  { flex: 1; min-width: 60px; }
+.ha-trig-label-status { width: 170px; flex-shrink: 0; }
+.ha-trig-label-del    { width: 28px; flex-shrink: 0; }
 
 /* ── Add entity modal ─────────────────────────────────────── */
 .ha-add-entity-list {
@@ -1033,6 +1064,9 @@ a:hover { text-decoration: underline; }
   .ha-trigger-row {
     flex-wrap: wrap;
   }
+  .ha-trigger-labels {
+    display: none;
+  }
   .ha-trig-type, .ha-trig-op, .ha-trig-status {
     width: auto;
     flex: 1;
@@ -1046,4 +1080,25 @@ a:hover { text-decoration: underline; }
 /* Text helpers */
 .text-muted {
   color: var(--text-muted);
+}
+
+/* ── Text Helper section ──────────────────────────────────── */
+.th-test-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.th-preview {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  color: var(--accent, #7ecfff);
+  background: var(--bg-input, #111);
+  padding: 4px 10px;
+  border-radius: 4px;
+  min-height: 1.4em;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

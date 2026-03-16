@@ -94,6 +94,40 @@ app.post('/api/ha/label', auth.requireAuth, (req, res) => {
   res.json({ ok: true, labelName });
 });
 
+// ── Text Helper API ─────────────────────────────────────────
+// GET /api/ha/text-helper — get text helper config
+app.get('/api/ha/text-helper', auth.requireAuth, (_req, res) => {
+  res.json(ha.getTextHelperConfig());
+});
+
+// POST /api/ha/text-helper — save text helper config
+app.post('/api/ha/text-helper', auth.requireAuth, (req, res) => {
+  ha.setTextHelperConfig(req.body || {});
+  res.json({ ok: true });
+});
+
+// POST /api/ha/text-helper/test — test-render a template with sample data
+app.post('/api/ha/text-helper/test', auth.requireAuth, (req, res) => {
+  const { template, data } = req.body || {};
+  if (!template) return res.status(400).json({ error: 'template required' });
+  const rendered = ha.testTemplate(template, data || {});
+  res.json({ ok: true, rendered });
+});
+
+// POST /api/ha/text-helper/push-test — render + push a template to HA
+app.post('/api/ha/text-helper/push-test', auth.requireAuth, async (req, res) => {
+  const { type, data, entity, template } = req.body || {};
+  if (!type) return res.status(400).json({ error: 'type required (state or mood)' });
+  try {
+    // Pass entity/template from form as overrides so test works even without saving first
+    const overrides = (entity || template) ? { entity, template } : undefined;
+    await ha.pushTextHelper(data || {}, type, overrides);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Push failed' });
+  }
+});
+
 const CONFIG_DIR = process.env.UMMON_CONFIG_DIR
   ? path.resolve(process.env.UMMON_CONFIG_DIR)
   : path.join(__dirname, '..', 'config');
@@ -400,7 +434,17 @@ app.post('/api/style', auth.requireAuth, async (req, res) => {
 // ── Start ────────────────────────────────────────────────────
 (async () => {
   await auth.init(CONFIG_DIR);
-  await state.init(renderPng, renderJpeg, CONFIG_DIR);
+  await state.init(renderPng, renderJpeg, CONFIG_DIR, (metadata) => {
+    // Push to HA text helper whenever a glyph is set (including idle moods)
+    const isMood = metadata.domain === 'system' && metadata.status === 'idle' && metadata.moodName;
+    const type = isMood ? 'mood' : 'state';
+    ha.pushTextHelper(metadata, type).catch((err) => {
+      // Silently ignore missing config — only log actual push failures
+      if (err.message && !err.message.startsWith('No ') && !err.message.startsWith('Home Assistant connection')) {
+        console.error('  ◆ Text helper auto-push error:', err.message);
+      }
+    });
+  });
 
   // Initialize Home Assistant integration with glyph trigger callback
   ha.init(CONFIG_DIR, async (glyphPayload) => {

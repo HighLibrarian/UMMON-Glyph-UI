@@ -5,10 +5,17 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const nunjucks = require('nunjucks');
 
 // ── Runtime state ────────────────────────────────────────────
 let haConfig = { host: '', token: '' };
 let labelName = 'glyph';
+let textHelperConfig = {
+  stateEntity: '',
+  stateTemplate: '{{domain}} // {{urgency}}',
+  moodEntity: '',
+  moodTemplate: '// {{mood}}',
+};
 let entityOverrides = {};   // keyed by entity_id
 let configDir = '';          // set via init()
 let glyphCallback = null;   // called when a rule triggers a glyph
@@ -22,6 +29,8 @@ let wsEntitySubscriptions = new Set(); // entity_ids we care about
 function haConfigPath()    { return path.join(configDir, 'ha-config.json'); }
 function haEntitiesPath()  { return path.join(configDir, 'ha-entities.json'); }
 
+function haTextHelperPath() { return path.join(configDir, 'ha-text-helper.json'); }
+
 function loadFromDisk() {
   try {
     if (fs.existsSync(haConfigPath())) {
@@ -32,6 +41,17 @@ function loadFromDisk() {
     }
   } catch (err) {
     console.error('  ◆ Failed to load HA config:', err.message);
+  }
+  try {
+    if (fs.existsSync(haTextHelperPath())) {
+      const data = JSON.parse(fs.readFileSync(haTextHelperPath(), 'utf8'));
+      textHelperConfig.stateEntity = data.stateEntity || '';
+      textHelperConfig.stateTemplate = data.stateTemplate || '{{domain}} // {{urgency}}';
+      textHelperConfig.moodEntity = data.moodEntity || '';
+      textHelperConfig.moodTemplate = data.moodTemplate || '// {{mood}}';
+    }
+  } catch (err) {
+    console.error('  ◆ Failed to load text helper config:', err.message);
   }
   try {
     if (fs.existsSync(haEntitiesPath())) {
@@ -51,6 +71,14 @@ function saveConfigToDisk() {
     }, null, 2) + '\n', 'utf8');
   } catch (err) {
     console.error('  ◆ Failed to save HA config:', err.message);
+  }
+}
+
+function saveTextHelperConfig() {
+  try {
+    fs.writeFileSync(haTextHelperPath(), JSON.stringify(textHelperConfig, null, 2) + '\n', 'utf8');
+  } catch (err) {
+    console.error('  ◆ Failed to save text helper config:', err.message);
   }
 }
 
@@ -535,6 +563,76 @@ function getConnectionStatus() {
   return 'disconnected';
 }
 
+// ── Text Helper — config accessors ───────────────────────────
+function getTextHelperConfig() {
+  return { ...textHelperConfig };
+}
+
+function setTextHelperConfig(cfg) {
+  if (cfg.stateEntity !== undefined)   textHelperConfig.stateEntity   = cfg.stateEntity;
+  if (cfg.stateTemplate !== undefined) textHelperConfig.stateTemplate = cfg.stateTemplate;
+  if (cfg.moodEntity !== undefined)    textHelperConfig.moodEntity    = cfg.moodEntity;
+  if (cfg.moodTemplate !== undefined)  textHelperConfig.moodTemplate  = cfg.moodTemplate;
+  saveTextHelperConfig();
+}
+
+// ── Text Helper — render template ────────────────────────────
+function renderTemplate(template, data) {
+  try {
+    return nunjucks.renderString(template || '', data || {});
+  } catch (err) {
+    console.error('  ◆ Template render error:', err.message);
+    return '(template error)';
+  }
+}
+
+// ── Text Helper — push rendered text to HA input_text entity ─
+async function pushTextHelper(metadata, type, overrides) {
+  // type = 'state' or 'mood'
+  // overrides: optional { entity, template } to use instead of saved config (for test pushes)
+  const entity = (overrides && overrides.entity) || (type === 'mood' ? textHelperConfig.moodEntity : textHelperConfig.stateEntity);
+  const template = (overrides && overrides.template) || (type === 'mood' ? textHelperConfig.moodTemplate : textHelperConfig.stateTemplate);
+
+  if (!entity)   throw new Error('No entity configured for ' + type);
+  if (!template)  throw new Error('No template configured for ' + type);
+  if (!haConfig.host || !haConfig.token) throw new Error('Home Assistant connection not configured');
+
+  const rendered = renderTemplate(template, metadata);
+
+  // Use the proper HA service call for input_text entities
+  if (entity.startsWith('input_text.')) {
+    try {
+      await axios.post(
+        `${haConfig.host}/api/services/input_text/set_value`,
+        { entity_id: entity, value: rendered },
+        { headers: { 'Authorization': `Bearer ${haConfig.token}`, 'Content-Type': 'application/json' }, timeout: 5000 }
+      );
+    } catch (err) {
+      const msg = (err.response && err.response.data && err.response.data.message) || err.message;
+      console.error(`  ◆ Text helper push (${type}) failed:`, msg);
+      throw new Error('Push failed: ' + msg);
+    }
+  } else {
+    // Fallback: set state directly for non-input_text entities
+    try {
+      await axios.post(
+        `${haConfig.host}/api/states/${entity}`,
+        { state: rendered, attributes: { friendly_name: 'Ummon ' + type, source: 'ummon-glyph-ui' } },
+        { headers: { 'Authorization': `Bearer ${haConfig.token}`, 'Content-Type': 'application/json' }, timeout: 5000 }
+      );
+    } catch (err) {
+      const msg = (err.response && err.response.data && err.response.data.message) || err.message;
+      console.error(`  ◆ Text helper push (${type}) failed:`, msg);
+      throw new Error('Push failed: ' + msg);
+    }
+  }
+}
+
+// ── Text Helper — test render (returns preview without pushing) ─
+function testTemplate(template, sampleData) {
+  return renderTemplate(template, sampleData);
+}
+
 // ── Exports ──────────────────────────────────────────────────
 module.exports = {
   init,
@@ -554,4 +652,9 @@ module.exports = {
   connectWebSocket,
   disconnectWebSocket,
   getConnectionStatus,
+  getTextHelperConfig,
+  setTextHelperConfig,
+  pushTextHelper,
+  testTemplate,
+  renderTemplate,
 };

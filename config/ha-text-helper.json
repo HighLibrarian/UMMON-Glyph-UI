@@ -1,0 +1,6 @@
+{
+  "stateEntity": "input_text.demo",
+  "stateTemplate": "{{domain}} // {{urgency}} // {{ttl}} // {{moodName}}",
+  "moodEntity": "",
+  "moodTemplate": "// {{mood}}"
+}

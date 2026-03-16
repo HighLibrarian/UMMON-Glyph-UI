@@ -70,6 +70,8 @@ let currentGridSize = null; // custom grid size (null = use config default)
 
 const history = [];         // last N events
 const MAX_HISTORY = 50;
+let onGlyphSetCallback = null;  // called after a glyph is accepted (for text helper etc.)
+let _configDir = null;           // path to config directory (set during init)
 
 function pushHistory(entry) {
   history.unshift({ ...entry, timestamp: Date.now() });
@@ -135,6 +137,11 @@ async function setGlyph(metadata) {
   await updatePng();
   pushHistory({ action: 'set', metadata, priority });
   broadcast('glyph', { glyphData, metadata, priority, expiresAt });
+
+  // Notify callback (e.g. text helper push)
+  if (onGlyphSetCallback) {
+    try { onGlyphSetCallback(metadata); } catch { /* ignore */ }
+  }
 
   return { accepted: true, glyphData, priority, expiresAt };
 }
@@ -223,14 +230,50 @@ function updateConfig(patch) {
   if (patch.priorities) Object.assign(config.priorities, patch.priorities);
   if (patch.idle)       Object.assign(config.idle, patch.idle);
   if (patch.defaults)   Object.assign(config.defaults, patch.defaults);
+  persistConfig();
   broadcast('config', getConfig());
   return getConfig();
 }
 
+function persistConfig() {
+  if (!_configDir) return;
+  try {
+    const settingsPath = path.join(_configDir, 'settings.json');
+    const data = {
+      idle: { ...config.idle },
+      defaults: { ...config.defaults },
+      priorities: { ...config.priorities },
+    };
+    fs.writeFileSync(settingsPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  } catch (err) {
+    console.error('Failed to persist settings.json:', err.message);
+  }
+}
+
+function loadPersistedConfig() {
+  if (!_configDir) return;
+  try {
+    const settingsPath = path.join(_configDir, 'settings.json');
+    if (!fs.existsSync(settingsPath)) return;
+    const data = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    if (data.idle)       Object.assign(config.idle, data.idle);
+    if (data.defaults)   Object.assign(config.defaults, data.defaults);
+    if (data.priorities) Object.assign(config.priorities, data.priorities);
+    console.log('  ◆ Loaded persisted settings from settings.json');
+  } catch (err) {
+    console.warn('  ◆ Could not load settings.json:', err.message);
+  }
+}
+
 // ── Initialise ───────────────────────────────────────────────
-async function init(pngRenderer, jpegRenderer, configDir) {
+async function init(pngRenderer, jpegRenderer, configDir, onGlyphSet) {
   renderPng  = pngRenderer;
   renderJpeg = jpegRenderer || null;
+  onGlyphSetCallback = onGlyphSet || null;
+  _configDir = configDir || null;
+
+  // Load persisted settings (idle, defaults, priorities) before anything else
+  loadPersistedConfig();
 
   // Load mood names from the active config directory
   if (configDir) {

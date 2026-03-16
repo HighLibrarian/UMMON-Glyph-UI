@@ -230,14 +230,14 @@
         '</select>' +
         '<input class="ha-trig-value" data-idx="' + i + '" value="' + escHtml(String(t.value || '')) + '" placeholder="value" />' +
         '<select class="ha-trig-status" data-idx="' + i + '">' +
-          '<option value="done"' + (t.glyphStatus === 'done' ? ' selected' : '') + '>done</option>' +
-          '<option value="warning"' + (t.glyphStatus === 'warning' ? ' selected' : '') + '>warning</option>' +
-          '<option value="error"' + (t.glyphStatus === 'error' ? ' selected' : '') + '>error</option>' +
-          '<option value="critical"' + (t.glyphStatus === 'critical' ? ' selected' : '') + '>critical</option>' +
-          '<option value="running"' + (t.glyphStatus === 'running' ? ' selected' : '') + '>running</option>' +
-          '<option value="idle"' + (t.glyphStatus === 'idle' ? ' selected' : '') + '>idle</option>' +
-          '<option value="listening"' + (t.glyphStatus === 'listening' ? ' selected' : '') + '>listening</option>' +
-          '<option value="attention"' + (t.glyphStatus === 'attention' ? ' selected' : '') + '>attention</option>' +
+          '<option value="done"' + (t.glyphStatus === 'done' ? ' selected' : '') + '>done — completed/ok</option>' +
+          '<option value="running"' + (t.glyphStatus === 'running' ? ' selected' : '') + '>running — in progress</option>' +
+          '<option value="warning"' + (t.glyphStatus === 'warning' ? ' selected' : '') + '>warning — attention soon</option>' +
+          '<option value="error"' + (t.glyphStatus === 'error' ? ' selected' : '') + '>error — something failed</option>' +
+          '<option value="critical"' + (t.glyphStatus === 'critical' ? ' selected' : '') + '>critical — urgent/alarm</option>' +
+          '<option value="attention"' + (t.glyphStatus === 'attention' ? ' selected' : '') + '>attention — look at me</option>' +
+          '<option value="idle"' + (t.glyphStatus === 'idle' ? ' selected' : '') + '>idle — background</option>' +
+          '<option value="listening"' + (t.glyphStatus === 'listening' ? ' selected' : '') + '>listening — voice active</option>' +
         '</select>' +
         '<button class="btn btn-small ha-btn-danger ha-del-trigger" data-idx="' + i + '">✕</button>';
       modalTriggers.appendChild(row);
@@ -356,7 +356,7 @@
     modalCancelBtn.addEventListener('click', closeEditModal);
   }
   if (modalOverlay) {
-    modalOverlay.addEventListener('click', function (e) {
+    modalOverlay.addEventListener('mousedown', function (e) {
       if (e.target === modalOverlay) closeEditModal();
     });
   }
@@ -475,7 +475,7 @@
     });
   }
   if (addModalOverlay) {
-    addModalOverlay.addEventListener('click', function (e) {
+    addModalOverlay.addEventListener('mousedown', function (e) {
       if (e.target === addModalOverlay) addModalOverlay.style.display = 'none';
     });
   }
@@ -487,6 +487,131 @@
       if (addModalOverlay) addModalOverlay.style.display = 'none';
     }
   });
+
+  // ── Text Helper ─────────────────────────────────────────────
+  var thStateEntity   = document.getElementById('th-state-entity');
+  var thStateTemplate = document.getElementById('th-state-template');
+  var thMoodEntity    = document.getElementById('th-mood-entity');
+  var thMoodTemplate  = document.getElementById('th-mood-template');
+  var thSaveBtn       = document.getElementById('btn-th-save');
+  var thTestStateBtn  = document.getElementById('btn-th-test-state');
+  var thTestMoodBtn   = document.getElementById('btn-th-test-mood');
+  var thPushStateBtn  = document.getElementById('btn-th-push-state');
+  var thPushMoodBtn   = document.getElementById('btn-th-push-mood');
+  var thStatePreview  = document.getElementById('th-state-preview');
+  var thMoodPreview   = document.getElementById('th-mood-preview');
+
+  var sampleStateData = {
+    domain: 'appliance', device: 'washer', status: 'done',
+    intent: 'notification', urgency: 0, ttl: 30
+  };
+  var sampleMoodData = {
+    domain: 'system', status: 'idle', intent: 'idle',
+    urgency: 0, mood: 3, moodCount: 8, moodName: 'CALM SUBPROCESS'
+  };
+
+  function loadTextHelperConfig() {
+    fetch('/api/ha/text-helper')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.stateEntity) thStateEntity.value = data.stateEntity;
+        if (data.stateTemplate) thStateTemplate.value = data.stateTemplate;
+        if (data.moodEntity) thMoodEntity.value = data.moodEntity;
+        if (data.moodTemplate) thMoodTemplate.value = data.moodTemplate;
+      })
+      .catch(function () { /* ignore */ });
+  }
+
+  if (thSaveBtn) {
+    thSaveBtn.addEventListener('click', function () {
+      fetch('/api/ha/text-helper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stateEntity: thStateEntity.value.trim(),
+          stateTemplate: thStateTemplate.value,
+          moodEntity: thMoodEntity.value.trim(),
+          moodTemplate: thMoodTemplate.value
+        })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) showToast('Text helper config saved', 'ok');
+          else showToast(data.error || 'Failed to save', 'err');
+        })
+        .catch(function () { showToast('Network error', 'err'); });
+    });
+  }
+
+  if (thTestStateBtn) {
+    thTestStateBtn.addEventListener('click', function () {
+      fetch('/api/ha/text-helper/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template: thStateTemplate.value, data: sampleStateData })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) thStatePreview.textContent = data.rendered;
+          else thStatePreview.textContent = data.error || 'Error';
+        })
+        .catch(function () { thStatePreview.textContent = 'Network error'; });
+    });
+  }
+
+  if (thTestMoodBtn) {
+    thTestMoodBtn.addEventListener('click', function () {
+      fetch('/api/ha/text-helper/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template: thMoodTemplate.value, data: sampleMoodData })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) thMoodPreview.textContent = data.rendered;
+          else thMoodPreview.textContent = data.error || 'Error';
+        })
+        .catch(function () { thMoodPreview.textContent = 'Network error'; });
+    });
+  }
+
+  if (thPushStateBtn) {
+    thPushStateBtn.addEventListener('click', function () {
+      var entity = thStateEntity.value.trim();
+      var template = thStateTemplate.value;
+      if (!entity) { showToast('State Entity is empty', 'err'); return; }
+      fetch('/api/ha/text-helper/push-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'state', data: sampleStateData, entity: entity, template: template })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) showToast('Pushed state test to HA', 'ok');
+          else showToast(data.error || 'Push failed', 'err');
+        })
+        .catch(function () { showToast('Network error', 'err'); });
+    });
+  }
+
+  if (thPushMoodBtn) {
+    thPushMoodBtn.addEventListener('click', function () {
+      var entity = thMoodEntity.value.trim();
+      var template = thMoodTemplate.value;
+      if (!entity) { showToast('Mood Entity is empty', 'err'); return; }
+      fetch('/api/ha/text-helper/push-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'mood', data: sampleMoodData, entity: entity, template: template })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) showToast('Pushed mood test to HA', 'ok');
+          else showToast(data.error || 'Push failed', 'err');
+        })
+        .catch(function () { showToast('Network error', 'err'); });
+    });
+  }
 
   // ── Auth status check ──────────────────────────────────────
   fetch('/api/auth/status')
@@ -503,6 +628,7 @@
   loadConfig();
   loadWsStatus();
   refreshEntities();
+  loadTextHelperConfig();
 
   // Polling for WS status
   setInterval(loadWsStatus, 15000);

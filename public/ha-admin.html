@@ -51,6 +51,49 @@
       </div>
     </section>
 
+    <!-- ╔═ Text Helper Card ═════════════════════════════════════╗ -->
+    <section class="card ha-conn-card">
+      <h2 class="card-title">Text Helper <small>(push glyph state to HA input_text)</small></h2>
+      <div class="ha-conn-section">
+        <p class="text-muted" style="margin:0 0 12px;font-size:0.82rem">
+          Push rendered text to Home Assistant <code>input_text</code> helper entities using Jinja-style templates.
+          Available variables for <strong>state</strong>: <code>domain</code>, <code>device</code>, <code>status</code>,
+          <code>intent</code>, <code>urgency</code>, <code>ttl</code>.
+          For <strong>mood</strong>: <code>moodName</code>, <code>mood</code>, <code>moodCount</code>.
+        </p>
+        <div class="form-row">
+          <label>State Entity</label>
+          <input type="text" id="th-state-entity" placeholder="e.g. input_text.ummon_state" />
+        </div>
+        <div class="form-row">
+          <label>State Template</label>
+          <input type="text" id="th-state-template" placeholder="{{domain}} // {{urgency}}" value="{{domain}} // {{urgency}}" />
+        </div>
+        <div class="form-row th-test-row">
+          <button class="btn btn-secondary btn-small" id="btn-th-test-state">Test State Template</button>
+          <button class="btn btn-secondary btn-small" id="btn-th-push-state">Push Test to HA</button>
+          <span class="th-preview" id="th-state-preview"></span>
+        </div>
+        <hr style="border-color:var(--border);margin:12px 0" />
+        <div class="form-row">
+          <label>Mood Entity</label>
+          <input type="text" id="th-mood-entity" placeholder="e.g. input_text.ummon_mood" />
+        </div>
+        <div class="form-row">
+          <label>Mood Template</label>
+          <input type="text" id="th-mood-template" placeholder="// {{moodName}}" value="// {{moodName}}" />
+        </div>
+        <div class="form-row th-test-row">
+          <button class="btn btn-secondary btn-small" id="btn-th-test-mood">Test Mood Template</button>
+          <button class="btn btn-secondary btn-small" id="btn-th-push-mood">Push Test to HA</button>
+          <span class="th-preview" id="th-mood-preview"></span>
+        </div>
+        <div class="form-actions" style="margin-top:12px">
+          <button class="btn btn-primary" id="btn-th-save">Save Text Helper Config</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ╔═ Entity Panel ═══════════════════════════════════════╗ -->
     <section class="card ha-entities-card">
       <div class="ha-entities-header">
@@ -99,7 +142,7 @@
         </div>
         <div class="form-row-inline">
           <div class="form-row">
-            <label>Domain</label>
+            <label><span class="tooltip-wrap">Domain <span class="tooltip-icon" data-tooltip="The glyph category this entity belongs to. Determines the visual style of the glyph pattern (e.g. security glyphs look different from appliance glyphs).">ℹ️</span></span></label>
             <select id="ha-edit-domain">
               <option value="">—</option>
               <option value="appliance">Appliance</option>
@@ -111,7 +154,7 @@
             </select>
           </div>
           <div class="form-row">
-            <label>Intent</label>
+            <label><span class="tooltip-wrap">Intent <span class="tooltip-icon" data-tooltip="Why is the glyph shown? Notification = something happened. Alert = needs attention. Status = informational. Idle = background state.">ℹ️</span></span></label>
             <select id="ha-edit-intent">
               <option value="">—</option>
               <option value="notification">Notification</option>
@@ -125,11 +168,11 @@
         </div>
         <div class="form-row-inline">
           <div class="form-row">
-            <label>Device (glyph device name)</label>
+            <label><span class="tooltip-wrap">Device <span class="tooltip-icon" data-tooltip="A short label that identifies this device in glyph metadata. E.g. 'thermostat', 'front-door', 'washer'. Used in text helper templates as {{device}}.">ℹ️</span></span></label>
             <input type="text" id="ha-edit-device" placeholder="e.g. thermostat" />
           </div>
           <div class="form-row">
-            <label>Urgency</label>
+            <label><span class="tooltip-wrap">Urgency <span class="tooltip-icon" data-tooltip="How important is this event? Affects glyph visual intensity. 0 = subtle, 1–2 = moderate presence, 3 = strong pulse, 4 = critical blinking pattern.">ℹ️</span></span></label>
             <select id="ha-edit-urgency">
               <option value="0">0 — None</option>
               <option value="1">1 — Low</option>
@@ -140,7 +183,7 @@
           </div>
         </div>
         <div class="form-row">
-          <label>TTL (seconds)</label>
+          <label><span class="tooltip-wrap">TTL (seconds) <span class="tooltip-icon" data-tooltip="Time To Live — how many seconds the glyph stays on screen before returning to idle. Short values (5–15s) for quick notifications, longer (30–120s) for ongoing states.">ℹ️</span></span></label>
           <input type="number" id="ha-edit-ttl" value="30" min="1" max="3600" />
         </div>
         <div class="form-row">
@@ -153,7 +196,14 @@
 
         <!-- Triggers -->
         <div class="ha-triggers-section">
-          <h4>Triggers <small>(when state matches → create glyph)</small></h4>
+          <h4>Triggers <small>(when HA entity state matches a rule below → Ummon creates a glyph)</small></h4>
+          <div class="ha-trigger-labels">
+            <span class="ha-trig-label ha-trig-label-type">Type</span>
+            <span class="ha-trig-label ha-trig-label-op">Op</span>
+            <span class="ha-trig-label ha-trig-label-value">HA State Value</span>
+            <span class="ha-trig-label ha-trig-label-status"><span class="tooltip-wrap">Glyph Status <span class="tooltip-icon" data-tooltip="The visual status assigned to the glyph when this trigger fires. Controls the glyph appearance: done = completed/ok, running = in progress, warning = needs attention soon, error = something failed, critical = urgent/alarm, attention = look at me, idle = background, listening = voice active.">ℹ️</span></span></span>
+            <span class="ha-trig-label ha-trig-label-del"></span>
+          </div>
           <div id="ha-edit-triggers"></div>
           <button class="btn btn-ghost btn-small" id="ha-add-trigger">+ Add Trigger</button>
         </div>
