@@ -48,6 +48,8 @@ https://github.com/user-attachments/assets/27104629-b566-4a18-a7f4-cb0bff17190b
 - **Seed-based theming**: one seed string transforms colors, glow, layout, symmetry
 - **Idle variations**: the resting glyph subtly shifts each cycle so it feels alive
 - **Home Assistant integration**: label-based entity monitoring with trigger rules
+- **Copy entity rules**: clone trigger rules across similar entities with one click
+- **Text helpers**: push glyph state to HA `input_text` entities via templates
 - **Real-time everything**: SSE stream, PNG endpoint, MJPEG video stream
 - **Admin dashboard**: send glyphs, tweak priorities, manage themes
 - **Optional auth**: cookie-based admin login + API key for ingestion
@@ -228,12 +230,23 @@ You can hook Ummon directly into Home Assistant, label some entities and it'll a
 ### Entity Configuration
 
 For each entity you can set:
-- **Domain**: auto-detected from HA, but you can override it
-- **Device name**: friendly name for the glyph
-- **Intent**: notification, alert, status, etc.
-- **Urgency**: default urgency level
-- **TTL**: how long the glyph stays up
+- **Domain**: glyph category (appliance, system, security, climate, media, voice) — determines the visual pattern
+- **Device name**: short label used in glyph metadata and text helper templates (`{{device}}`)
+- **Intent**: why the glyph is shown (notification, alert, status, idle, voice, automation)
+- **Urgency**: visual intensity level (0 = subtle, 1–2 = moderate, 3 = strong pulse, 4 = critical blink)
+- **TTL**: how long the glyph stays on screen before returning to idle (seconds)
 - **Triggers**: rules that fire glyphs on state changes
+
+All fields have tooltip help icons (ℹ️) in the editor for quick reference.
+
+### Copying Rules
+
+If you have many similar entities (e.g. temperature sensors), you can copy an entity's rule to another entity:
+1. Click the 📋 button on the source entity row
+2. Pick a target entity from the filtered list
+3. The rule (domain, intent, device, urgency, TTL, triggers) is cloned to the target
+
+Only entities with the configured label are shown in the picker.
 
 ### Trigger Rules
 
@@ -244,7 +257,18 @@ Each trigger defines when a glyph fires:
 | `=`, `!=` | String/Number | state = "on" |
 | `<`, `>`, `<=`, `>=` | Number | temperature > 25 |
 
-Triggers can override the status and urgency of the fired glyph.
+Triggers set the **glyph status** when they fire — this controls the visual appearance:
+
+| Status | Meaning |
+|--------|---------|
+| `done` | Completed / OK |
+| `running` | In progress |
+| `warning` | Needs attention soon |
+| `error` | Something failed |
+| `critical` | Urgent / alarm |
+| `attention` | Look at me |
+| `idle` | Background state |
+| `listening` | Voice active |
 
 ### WebSocket Monitoring
 
@@ -273,7 +297,7 @@ Once connected, Ummon listens to HA `state_changed` events over WebSocket in rea
 | `POST` | `/api/ha/config` | Admin | Save HA connection |
 | `POST` | `/api/ha/test` | — | Test HA connection |
 | `GET` | `/api/ha/entities` | Admin | Labeled entities |
-| `GET` | `/api/ha/all-entities` | Admin | All HA entities |
+| `GET` | `/api/ha/all-entities` | Admin | Labeled HA entities (for pickers) |
 | `POST` | `/api/ha/entity` | Admin | Save entity override |
 | `DELETE` | `/api/ha/entity/:id` | Admin | Delete entity override |
 | `GET` | `/api/ha/status` | Admin | WebSocket connection status |
@@ -292,9 +316,11 @@ Everything persists in the `config/` volume — defaults are auto-copied on firs
 | `quick-actions.json` | Admin quick-action presets |
 | `style.json` | Style seed, PNG resolution, grid size |
 | `moods.json` | Idle mood names |
+| `settings.json` | Persisted runtime config — idle timers, variations, moods, priorities (auto-generated) |
 | `auth.json` | Credentials (auto-generated) |
 | `ha-config.json` | HA connection settings (auto-generated) |
 | `ha-entities.json` | Entity overrides (auto-generated) |
+| `ha-text-helper.json` | Text helper templates & entity config (auto-generated) |
 
 ---
 

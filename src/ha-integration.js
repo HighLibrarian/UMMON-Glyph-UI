@@ -320,24 +320,67 @@ async function fetchLabeledEntities() {
   return { ok: true, entities, labelFound, labelName };
 }
 
-// ── Fetch all HA entities (for "Add Entity" picker) ──────────
+// ── Fetch all HA entities with the configured label (for "Add Entity" / "Copy" picker) ──
 async function fetchAllEntities() {
   if (!haConfig.host || !haConfig.token) {
     return { ok: false, error: 'Not configured', entities: [] };
   }
   const headers = { 'Authorization': `Bearer ${haConfig.token}` };
+
+  // Find labeled entity IDs (same logic as fetchLabeledEntities)
+  let labeledEntityIds = null;  // null = no label filtering (label not found)
+  let targetLabelId = null;
+
+  try {
+    const labels = await wsCommand(haConfig.host, haConfig.token, 'config/label_registry/list', {});
+    if (Array.isArray(labels)) {
+      for (const label of labels) {
+        if ((label.name || '').toLowerCase() === labelName.toLowerCase() ||
+            (label.label_id || '').toLowerCase() === labelName.toLowerCase()) {
+          targetLabelId = label.label_id;
+          break;
+        }
+      }
+    }
+  } catch (err) {
+    console.log('  ◆ HA labels fetch failed:', err.message);
+  }
+
+  if (targetLabelId) {
+    labeledEntityIds = new Set();
+    try {
+      const registry = await wsCommand(haConfig.host, haConfig.token, 'config/entity_registry/list', {});
+      if (Array.isArray(registry)) {
+        for (const ent of registry) {
+          if (Array.isArray(ent.labels) && ent.labels.includes(targetLabelId)) {
+            labeledEntityIds.add(ent.entity_id);
+          }
+        }
+      }
+    } catch (err) {
+      console.log('  ◆ HA entity registry fetch failed:', err.message);
+    }
+  }
+
   try {
     const res = await axios.get(`${haConfig.host}/api/states`, {
       headers, timeout: 10000
     });
     if (!Array.isArray(res.data)) return { ok: false, error: 'Unexpected response', entities: [] };
-    const entities = res.data.map(s => ({
+    let states = res.data;
+
+    // Filter to only labeled entities when a label is configured and found
+    if (labeledEntityIds) {
+      states = states.filter(s => labeledEntityIds.has(s.entity_id));
+    }
+
+    const entities = states.map(s => ({
       entity_id: s.entity_id,
       friendly_name: (s.attributes && s.attributes.friendly_name) || s.entity_id,
       ha_domain: s.entity_id.split('.')[0],
       current_state: s.state,
     }));
-    return { ok: true, entities };
+    return { ok: true, entities, labelName, labelFiltered: !!labeledEntityIds };
   } catch (err) {
     return { ok: false, error: err.message || 'Unknown error', entities: [] };
   }

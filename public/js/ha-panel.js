@@ -39,10 +39,18 @@
   var addEntityList   = document.getElementById('ha-add-entity-list');
   var addModalCancel  = document.getElementById('ha-add-modal-cancel');
 
+  // Copy entity modal
+  var copyModalOverlay = document.getElementById('ha-copy-modal-overlay');
+  var copyModalTitle   = document.getElementById('ha-copy-modal-title');
+  var copySearchInput  = document.getElementById('ha-copy-search');
+  var copyEntityList   = document.getElementById('ha-copy-entity-list');
+  var copyModalCancel  = document.getElementById('ha-copy-modal-cancel');
+
   // ── State ──────────────────────────────────────────────────
   var entities = [];
   var currentEditEntity = null;
   var allHaEntities = [];
+  var copySourceEntity = null;  // entity being copied from
 
   // ── Toast ──────────────────────────────────────────────────
   function showToast(msg, type) {
@@ -155,7 +163,10 @@
         '<td>' + (e.ttl || 30) + 's</td>' +
         '<td>' + triggerSummary + '</td>' +
         '<td>' + (e.enabled !== false ? '<span class="ha-badge ha-badge-ok">On</span>' : '<span class="ha-badge ha-badge-off">Off</span>') + '</td>' +
-        '<td><button class="btn btn-small ha-edit-btn" data-idx="' + idx + '">⚙️</button></td>';
+        '<td class="ha-actions-cell">' +
+          '<button class="btn btn-small ha-copy-btn" data-idx="' + idx + '" title="Copy rule to another entity">📋</button>' +
+          '<button class="btn btn-small ha-edit-btn" data-idx="' + idx + '">⚙️</button>' +
+        '</td>';
       tbody.appendChild(tr);
     });
 
@@ -164,6 +175,14 @@
       btn.addEventListener('click', function () {
         var idx = parseInt(btn.getAttribute('data-idx'));
         openEditModal(entities[idx]);
+      });
+    });
+
+    // Attach copy handlers
+    tbody.querySelectorAll('.ha-copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var idx = parseInt(btn.getAttribute('data-idx'));
+        openCopyModal(entities[idx]);
       });
     });
   }
@@ -367,6 +386,8 @@
   }
 
   // ── Add Entity modal ───────────────────────────────────────
+  var addLabelHint = null; // tracks current label filter info
+
   if (haAddBtn) {
     haAddBtn.addEventListener('click', function () {
       addModalOverlay.style.display = 'flex';
@@ -380,6 +401,7 @@
             addEntityList.innerHTML = '<div class="log-empty">' + escHtml(data.error || 'Failed to load') + '</div>';
             return;
           }
+          addLabelHint = data.labelFiltered ? data.labelName : null;
           // Filter out entities already configured
           var configured = new Set(entities.map(function (e) { return e.entity_id; }));
           allHaEntities = (data.entities || []).filter(function (e) {
@@ -403,7 +425,10 @@
     });
 
     if (!filtered.length) {
-      addEntityList.innerHTML = '<div class="log-empty">No matching entities</div>';
+      var hint = addLabelHint
+        ? 'No matching entities with label \u201c' + escHtml(addLabelHint) + '\u201d. Add the label in Home Assistant first.'
+        : 'No matching entities';
+      addEntityList.innerHTML = '<div class="log-empty">' + hint + '</div>';
       return;
     }
 
@@ -485,8 +510,134 @@
     if (e.key === 'Escape') {
       closeEditModal();
       if (addModalOverlay) addModalOverlay.style.display = 'none';
+      if (copyModalOverlay) copyModalOverlay.style.display = 'none';
     }
   });
+
+  // ── Copy Entity modal ───────────────────────────────────────
+  var copyLabelHint = null;
+
+  function openCopyModal(sourceEntity) {
+    copySourceEntity = sourceEntity;
+    copyModalTitle.textContent = 'Copy Rule: ' + (sourceEntity.friendly_name || sourceEntity.entity_id);
+    copySearchInput.value = '';
+    copyEntityList.innerHTML = '<div class="log-empty">Loading entities…</div>';
+    copyModalOverlay.style.display = 'flex';
+
+    fetch('/api/ha/all-entities')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data.ok) {
+          copyEntityList.innerHTML = '<div class="log-empty">' + escHtml(data.error || 'Failed to load') + '</div>';
+          return;
+        }
+        copyLabelHint = data.labelFiltered ? data.labelName : null;
+        // Only filter out the source entity — allow copying to already-configured entities
+        allHaEntities = (data.entities || []).filter(function (e) {
+          return e.entity_id !== sourceEntity.entity_id;
+        });
+        renderCopyEntityList('');
+      })
+      .catch(function () {
+        copyEntityList.innerHTML = '<div class="log-empty">Network error</div>';
+      });
+  }
+
+  function renderCopyEntityList(filter) {
+    copyEntityList.innerHTML = '';
+    var lower = (filter || '').toLowerCase();
+    var filtered = allHaEntities.filter(function (e) {
+      if (!lower) return true;
+      return e.entity_id.toLowerCase().indexOf(lower) >= 0 ||
+             (e.friendly_name || '').toLowerCase().indexOf(lower) >= 0;
+    });
+
+    if (!filtered.length) {
+      var hint = copyLabelHint
+        ? 'No matching entities with label \u201c' + escHtml(copyLabelHint) + '\u201d. Add the label in Home Assistant first.'
+        : 'No matching entities';
+      copyEntityList.innerHTML = '<div class="log-empty">' + hint + '</div>';
+      return;
+    }
+
+    var shown = filtered.slice(0, 100);
+    shown.forEach(function (e) {
+      var row = document.createElement('div');
+      row.className = 'ha-add-entity-row';
+      row.innerHTML =
+        '<div class="ha-add-entity-info">' +
+          '<strong>' + escHtml(e.friendly_name || e.entity_id) + '</strong>' +
+          '<span class="ha-entity-id">' + escHtml(e.entity_id) + '</span>' +
+        '</div>' +
+        '<button class="btn btn-small btn-primary">Copy To</button>';
+      row.querySelector('button').addEventListener('click', function () {
+        copyRuleToEntity(e);
+      });
+      copyEntityList.appendChild(row);
+    });
+
+    if (filtered.length > 100) {
+      var more = document.createElement('div');
+      more.className = 'log-empty';
+      more.textContent = '…and ' + (filtered.length - 100) + ' more. Type to filter.';
+      copyEntityList.appendChild(more);
+    }
+  }
+
+  function copyRuleToEntity(targetHaEntity) {
+    if (!copySourceEntity) return;
+    var payload = {
+      entity_id: targetHaEntity.entity_id,
+      friendly_name: targetHaEntity.friendly_name || targetHaEntity.entity_id,
+      domain: copySourceEntity.domain || '',
+      device: copySourceEntity.device || '',
+      intent: copySourceEntity.intent || 'notification',
+      urgency: copySourceEntity.urgency || 0,
+      ttl: copySourceEntity.ttl || 30,
+      enabled: copySourceEntity.enabled !== false,
+      triggers: JSON.parse(JSON.stringify(copySourceEntity.triggers || [])),
+    };
+
+    fetch('/api/ha/entity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.ok) {
+          showToast('Rule copied to ' + (targetHaEntity.friendly_name || targetHaEntity.entity_id), 'ok');
+          copyModalOverlay.style.display = 'none';
+          copySourceEntity = null;
+          refreshEntities();
+        } else {
+          showToast(data.error || 'Failed to copy', 'err');
+        }
+      })
+      .catch(function () { showToast('Network error', 'err'); });
+  }
+
+  if (copySearchInput) {
+    copySearchInput.addEventListener('input', function () {
+      renderCopyEntityList(copySearchInput.value);
+    });
+  }
+
+  if (copyModalCancel) {
+    copyModalCancel.addEventListener('click', function () {
+      copyModalOverlay.style.display = 'none';
+      copySourceEntity = null;
+    });
+  }
+
+  if (copyModalOverlay) {
+    copyModalOverlay.addEventListener('mousedown', function (e) {
+      if (e.target === copyModalOverlay) {
+        copyModalOverlay.style.display = 'none';
+        copySourceEntity = null;
+      }
+    });
+  }
 
   // ── Text Helper ─────────────────────────────────────────────
   var thStateEntity   = document.getElementById('th-state-entity');

@@ -883,13 +883,20 @@ a:hover { text-decoration: underline; }
   color: var(--text-muted);
 }
 
-/* Edit button in table */
-.ha-edit-btn {
+/* Edit / Copy buttons in table */
+.ha-actions-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.ha-edit-btn,
+.ha-copy-btn {
   background: transparent;
   border: 1px solid var(--border);
   cursor: pointer;
 }
-.ha-edit-btn:hover {
+.ha-edit-btn:hover,
+.ha-copy-btn:hover {
   border-color: var(--border-focus);
 }
 
