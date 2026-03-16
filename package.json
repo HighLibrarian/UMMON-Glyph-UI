@@ -1,6 +1,6 @@
 {
   "name": "ummon-glyph-ui",
-  "version": "1.0.0",
+  "version": "0.7.5",
   "description": "Deterministic visual glyph system for Home Assistant — procedurally generated grid-based colored block patterns",
   "main": "src/server.js",
   "scripts": {
